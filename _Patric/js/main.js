@@ -45,10 +45,11 @@ function createWorld(map) {
 createWorld(lvl_one_map);   
 
 let dx = dy = dz = dry = 0;
-let pressUp = pressDown = pressLeft = pressRight = 0;
+let pressUp = pressDown = pressLeft = pressRight = jump = 0;
 let mouseX = mouseY = 0;
 let vel = 10;
-var gravity = 9.8;
+var gravity = 1;
+var onGround = false;
 
 function player(x, y, z, rx, ry, rz, vx, vy, vz) {
     this.x = x;
@@ -78,7 +79,7 @@ document.addEventListener("keydown", (e) => {
         pressRight = pawn.vx;
     }
     if (e.code == "Space") {
-
+        jump = pawn.vy;
     }
 });
 
@@ -96,7 +97,7 @@ document.addEventListener("keyup", (e) => {
         pressRight = 0;
     }
     if (e.code == "Space") {
-
+        jump = 0;
     }
 });
 
@@ -125,11 +126,20 @@ myContainer.addEventListener("click", async () => {
 function update() {
     dx = (pressLeft - pressRight)*Math.cos(pawn.ry * DEG) + (pressUp - pressDown)*Math.sin(pawn.ry * DEG);
     dz = -(pressLeft - pressRight)*Math.sin(pawn.ry * DEG) + (pressUp - pressDown)*Math.cos(pawn.ry * DEG);
-    dy = gravity;
 
     dry = mouseX * sensitivity;
     drx = mouseY * sensitivity;
     mouseX = mouseY = 0;
+
+    if (onGround) {
+        dy = 0;
+        if (jump) {
+            pawn.y = -jump;
+            onGround = false;
+        }
+    } else {
+        dy = gravity;
+    }
 
     collision(lvl_one_map, pawn);
 
