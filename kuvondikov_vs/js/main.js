@@ -2,17 +2,24 @@ const DEG = Math.PI / 180;
 var myContainer = document.getElementById("container");
 var myWorld = document.getElementById("world");
 
-var lock;
-var sensitivity = 0.5;
-
 var lvl_one_map = [
-    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 1, pattern: "url('assets/textures/grass.jpg')"},
-    // { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -350, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.5 },
-    { name: "right wall", height: 700, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 1, pattern: "url('assets/textures/wall.jpg')" },
-    { name: "left wall", height: 200, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 0.5 },
+    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 0.8},
+    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "brown", opacity: 0.8 },
+    { name: "right wall", height: 200, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 0.8 },
+    { name: "left wall", height: 200, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 0.8 },
     // { name: "front wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#ecc0d1", opacity: 0.5 },
     { name: "hinter wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", opacity: 0.5 },
-    { name: "wall001", height: 200, width: 200, posX: 0, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "black", opacity: 0.5}
+    { name: "wall001", height: 200, width: 200, posX: 0, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "green", opacity: 1},
+    { name: "wallnumber2", height:200, width: 200, posX: -200, posY: 0, posZ: 200, rotX: 0, rotY: 0, rotZ: 0, color: "green", opacity: 0.8},
+    {name: "wall001", height: 200, width: 200, posX: -200, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "green", opacity: 1},
+    { name: "wallnumber3", height:200, width: 300, posX: 150, posY: 0, posZ: 200, rotX: 0, rotY: 0, rotZ: 0, color: "green", opacity: 0.8},
+    { name: "wallnumber4", height:200, width: 200, posX: 300, posY: 0, posZ: 100 , rotX: 0, rotY: 810, rotZ: 0, color: "green", opacity: 0.8},
+    { name: "wallnumber5", height:200, width: 200, posX: 300, posY: 0, posZ: -100 , rotX: 0, rotY: 810, rotZ: 0, color: "green", opacity: 0.8},
+    { name: "wallnumber6", height:200, width: 400, posX: 300, posY: 0, posZ: -400 , rotX: 0, rotY: 810, rotZ: 0, color: "green", opacity: 0.8},
+    { name: "wallnumber3", height:200, width: 600, posX: 0, posY: 0, posZ: -600, rotX: 0, rotY: 0, rotZ: 0, color: "grey", opacity: 0.8},
+    { name: "wallnumber2", height:200, width: 600, posX: -300, posY: 0, posZ: -100, rotX: 0, rotY: 90, rotZ: 0, color: "grey", opacity: 0.8}, 
+    { name: "wall001", height: 50, width: 100, posX: -50, posY: -75, posZ: 200, rotX: 0, rotY: 0, rotZ: 0, color: "grey", opacity: 0.8},
+    { name: "door", height: 150, width: 100, posX: -50, posY: 25, posZ: 200, rotX: 0, rotY: 0, rotZ: 0, color: "brown", opacity: 0.9, isDoor: true},
 ];
 
 function createWorld(map) {
@@ -22,11 +29,7 @@ function createWorld(map) {
         mySquare.style.position = "absolute";
         mySquare.style.height = `${map[i].height}px`;
         mySquare.style.width = `${map[i].width}px`;
-        if (map[i].pattern) {
-            mySquare.style.backgroundImage = map[i].pattern;
-        } else {
-            mySquare.style.backgroundColor = map[i].color;
-        }
+        mySquare.style.backgroundColor = map[i].color;
         mySquare.style.opacity = map[i].opacity;
         mySquare.style.transform = `
             translate3d(
@@ -38,18 +41,80 @@ function createWorld(map) {
             RotateY(${map[i].rotY}deg) 
             RotateZ(${map[i].rotZ}deg)
         `;
+
         myWorld.appendChild(mySquare);
     }
 }
 
-createWorld(lvl_one_map);   
+createWorld(lvl_one_map);
+
+let doorOpen = false;
+let doorAnim = null;
+const DOOR_OPEN_ANGLE = 90;
+
+function toggleDoor() {
+    const door = lvl_one_map.find(obj => obj.isDoor);
+    if (!door) return;
+
+    let dist = Math.sqrt(
+        (pawn.x - door.posX) ** 2 +
+        (pawn.z - door.posZ) ** 2
+    );
+    if (dist > 200) return;
+
+    doorOpen = !doorOpen;
+    animateDoor(door, doorOpen);
+}
+
+function animateDoor(door, open) {
+    if (door.hingeX === undefined){
+        door.hingeX = door.posX - door.width / 2;
+        door.hingeZ = door.posZ;
+    }
+
+    if (doorAnim){
+        clearInterval(doorAnim);
+        doorAnim = null;
+    }
+    let target = open ? DOOR_OPEN_ANGLE : 0;
+    let current = door.rotY;
+    let step = open ? 5 : -5;
+    let hingeX = door.posX - door.width / 2;
+    let hingeZ = door.posZ;
+
+    let anim = setInterval(() => {
+        current += step;
+
+        if ((open && current >= target) || (!open && current <= target)) {
+            current = target;
+            clearInterval(anim);
+        }
+
+        door.rotY = current;
+
+        door.posX = hingeX + (door.width / 2) * Math.cos(current * DEG);
+        door.posZ = hingeZ + (door.width / 2) * Math.sin(current *DEG);
+
+        let el = document.getElementById("door");
+        el.style.transform = `
+            translate3d(
+                ${door.posX + myWorld.clientWidth / 2 - door.width / 2}px,
+                ${door.posY + myWorld.clientHeight / 2 - door.height / 2}px,
+                ${-door.posZ}px
+            )
+            RotateX(${door.rotX}deg)
+            RotateY(${door.rotY}deg)
+            RotateZ(${door.rotZ}deg)
+        `;
+    
+    }, 16);
+}
+ 
 
 let dx = dy = dz = dry = 0;
-let pressUp = pressDown = pressLeft = pressRight = jump = 0;
+let pressUp = pressDown = pressLeft = pressRight = 0;
 let mouseX = mouseY = 0;
 let vel = 10;
-var gravity = 1;
-var onGround = false;
 
 function player(x, y, z, rx, ry, rz, vx, vy, vz) {
     this.x = x;
@@ -78,9 +143,7 @@ document.addEventListener("keydown", (e) => {
     if (e.code == "KeyA") {
         pressRight = pawn.vx;
     }
-    if (e.code == "Space") {
-        jump = pawn.vy;
-    }
+    if (e.code == "KeyE") toggleDoor();
 });
 
 document.addEventListener("keyup", (e) => {
@@ -96,9 +159,6 @@ document.addEventListener("keyup", (e) => {
     if (e.code == "KeyA") {
         pressRight = 0;
     }
-    if (e.code == "Space") {
-        jump = 0;
-    }
 });
 
 document.addEventListener("mousemove", (e) => {
@@ -106,17 +166,10 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.movementY;
 });
 
-document.addEventListener("pointerlockchange", (event) => {
-    lock = !lock;
-});
-
 myContainer.addEventListener("click", async () => {
-    if (!lock) {
-        await myContainer.requestPointerLock({
-            unadjustedMovement: true,
-        });
-    } 
-        
+  await myContainer.requestPointerLock({
+    unadjustedMovement: true,
+  });
 //   myContainer.style.width = "1920px";
 //   myContainer.style.height = "1200px";
 //   myContainer.requestFullscreen();
@@ -124,34 +177,24 @@ myContainer.addEventListener("click", async () => {
 });
 
 function update() {
+    // dz = pressUp - pressDown;
+    // dx = pressLeft - pressRight;
+
     dx = (pressLeft - pressRight)*Math.cos(pawn.ry * DEG) + (pressUp - pressDown)*Math.sin(pawn.ry * DEG);
     dz = -(pressLeft - pressRight)*Math.sin(pawn.ry * DEG) + (pressUp - pressDown)*Math.cos(pawn.ry * DEG);
 
-    dry = mouseX * sensitivity;
-    drx = mouseY * sensitivity;
+    dry = mouseX;
+    drx = 0;
     mouseX = mouseY = 0;
-
-    if (onGround) {
-        dy = 0;
-        if (jump) {
-            pawn.y = -jump;
-            onGround = false;
-        }
-    } else {
-        dy = gravity;
-    }
 
     collision(lvl_one_map, pawn);
 
-    if (lock) {
-        pawn.z += dz;
-        pawn.x += dx;
-        pawn.y += dy;
-        pawn.ry += dry;
-        pawn.rx -= drx;
-    }
+    pawn.z += dz;
+    pawn.x += dx;
+    pawn.ry += dry;
+    pawn.rx -= drx;
 
-    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${-pawn.y}px, ${pawn.z}px) `;
+    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${pawn.y}px, ${pawn.z}px) `;
 }
 
 var game = setInterval(update, 10);
@@ -160,6 +203,8 @@ function collision(mapObj, leadObj) {
     onGround = false;
     for (let i = 0; i < mapObj.length; i++) {
         //spēlētāja koordinātes katra taiststūra koordināšu sistēmā
+        if (mapObj[i].isDoor && doorOpen) continue;
+
         let x0 = (leadObj.x - mapObj[i].posX);
         let y0 = (leadObj.y - mapObj[i].posY);
         let z0 = (leadObj.z - mapObj[i].posZ);

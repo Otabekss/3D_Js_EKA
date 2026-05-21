@@ -3,12 +3,11 @@ var myContainer = document.getElementById("container");
 var myWorld = document.getElementById("world");
 
 var lock;
-var sensitivity = 0.5;
 
 var lvl_one_map = [
     { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 1, pattern: "url('assets/textures/grass.jpg')"},
-    // { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -350, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.5 },
-    { name: "right wall", height: 700, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 1, pattern: "url('assets/textures/wall.jpg')" },
+    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.5 },
+    { name: "right wall", height: 200, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 0.5 },
     { name: "left wall", height: 200, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 0.5 },
     // { name: "front wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#ecc0d1", opacity: 0.5 },
     { name: "hinter wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", opacity: 0.5 },
@@ -45,11 +44,9 @@ function createWorld(map) {
 createWorld(lvl_one_map);   
 
 let dx = dy = dz = dry = 0;
-let pressUp = pressDown = pressLeft = pressRight = jump = 0;
+let pressUp = pressDown = pressLeft = pressRight = 0;
 let mouseX = mouseY = 0;
 let vel = 10;
-var gravity = 1;
-var onGround = false;
 
 function player(x, y, z, rx, ry, rz, vx, vy, vz) {
     this.x = x;
@@ -78,9 +75,6 @@ document.addEventListener("keydown", (e) => {
     if (e.code == "KeyA") {
         pressRight = pawn.vx;
     }
-    if (e.code == "Space") {
-        jump = pawn.vy;
-    }
 });
 
 document.addEventListener("keyup", (e) => {
@@ -95,9 +89,6 @@ document.addEventListener("keyup", (e) => {
     }
     if (e.code == "KeyA") {
         pressRight = 0;
-    }
-    if (e.code == "Space") {
-        jump = 0;
     }
 });
 
@@ -124,34 +115,27 @@ myContainer.addEventListener("click", async () => {
 });
 
 function update() {
+    // dz = pressUp - pressDown;
+    // dx = pressLeft - pressRight;
+
     dx = (pressLeft - pressRight)*Math.cos(pawn.ry * DEG) + (pressUp - pressDown)*Math.sin(pawn.ry * DEG);
     dz = -(pressLeft - pressRight)*Math.sin(pawn.ry * DEG) + (pressUp - pressDown)*Math.cos(pawn.ry * DEG);
 
-    dry = mouseX * sensitivity;
-    drx = mouseY * sensitivity;
+    dry = mouseX;
+    drx = 0;
     mouseX = mouseY = 0;
-
-    if (onGround) {
-        dy = 0;
-        if (jump) {
-            pawn.y = -jump;
-            onGround = false;
-        }
-    } else {
-        dy = gravity;
-    }
 
     collision(lvl_one_map, pawn);
 
+    pawn.z += dz;
+    pawn.x += dx;
+
     if (lock) {
-        pawn.z += dz;
-        pawn.x += dx;
-        pawn.y += dy;
         pawn.ry += dry;
         pawn.rx -= drx;
     }
 
-    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${-pawn.y}px, ${pawn.z}px) `;
+    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${pawn.y}px, ${pawn.z}px) `;
 }
 
 var game = setInterval(update, 10);
