@@ -1,29 +1,26 @@
 const DEG = Math.PI / 180;
-var myWorld = document.getElementById("world");
 var myContainer = document.getElementById("container");
+var myWorld = document.getElementById("world");
 
 var lvl_one_map = [
-    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 200, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 0.3, img: "./assets/floor.jfif", bgsize: "15%"},
-    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -200, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.3, img: "./assets/sky.jpg",  bgsize: "cover"},
-    
-    { name: "right wall", height: 400, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 0.3, img: "./assets/wall.jpg", bgsize: "15%"},
-    { name: "left wall", height: 400, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 0.3, img: "./assets/wall.jpg", bgsize: "15%"},
-    { name: "front wall", height: 400, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#ecc0d1", opacity: 0.3, img: "./assets/wall.jpg", bgsize: "15%"},
-    { name: "hinter wall", height: 400, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", opacity: 0.3, img: "./assets/wall.jpg", bgsize: "15%"},
+    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "black", opacity: 0.5},
+    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "black", opacity: 0.5 },
+    { name: "right wall", height: 200, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "black", opacity: 0.5 },
+    { name: "left wall", height: 200, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "black", opacity: 0.5 },
+    /* { name: "front wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#000000", opacity: 0.5 },  */
+    { name: "hinter wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "black", opacity: 0.5 },
+    { name: "wall001", height: 200, width: 200, posX: 0, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "black", opacity: 0.5}
 ];
 
 function createWorld(map) {
-    for (let i = 0; i < map.length; i++) {
+    for (let i = 0; i < map.length; i++) {  
         var mySquare = document.createElement("div");
         mySquare.id = map[i].name;
         mySquare.style.position = "absolute";
         mySquare.style.height = `${map[i].height}px`;
         mySquare.style.width = `${map[i].width}px`;
         mySquare.style.backgroundColor = map[i].color;
-        // mySquare.style.opacity = map[i].opacity;
-        mySquare.style.backgroundImage = `url("${map[i].img}")`;
-        mySquare.style.backgroundSize = map[i].bgsize;
-        mySquare.style.backgroundPosition = 'center, center'; 
+        mySquare.style.opacity = map[i].opacity;
         mySquare.style.transform = `
             translate3d(
                 ${map[i].posX + myWorld.clientWidth / 2 - map[i].width / 2}px, 
@@ -37,7 +34,6 @@ function createWorld(map) {
         myWorld.appendChild(mySquare);
     }
 }
-
 
 createWorld(lvl_one_map);   
 
@@ -88,16 +84,6 @@ document.addEventListener("keyup", (e) => {
     if (e.code == "KeyA") {
         pressRight = 0;
     }
-    if (e.code == "Space") {
-        myWorld.style.transition = "all 0.3s";
-        pawn.y = 150;   
-         setTimeout(()=>{
-             pawn.y = 0; 
-        }, 300)
-        setTimeout(()=>{
-            myWorld.style.transition = null;
-        }, 500)
-    }
 });
 
 document.addEventListener("mousemove", (e) => {
@@ -105,13 +91,15 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.movementY;
 });
 
+
 myContainer.addEventListener("click", async () => {
   await myContainer.requestPointerLock({
     unadjustedMovement: true,
   });
-//   await myContainer.requestFullscreen();
 //   myContainer.style.width = "1920px";
-//   myContainer.style.height = "1080px";
+//   myContainer.style.height = "1200px";
+//   myContainer.requestFullscreen();
+//   console.log(myContainer.style.width, myContainer.style.height);
 });
 
 function update() {
@@ -158,7 +146,7 @@ function collision(mapObj, leadObj) {
             // let point2 = new Array();
 
             if (Math.abs(point1[0]) < (mapObj[i].width + 70) / 2 && Math.abs(point1[1]) < (mapObj[i].height + 70) / 2 && Math.abs(point1[2]) < 50) {
-                console.log("collision!");
+                // console.log("collision!");
                 point1[2] = Math.sign(point0[2]) * 50;
                 let point2 = coorReTransform(point1[0], point1[1], point1[2], mapObj[i].rotX, mapObj[i].rotY, mapObj[i].rotZ);
                 let point3 = coorReTransform(point1[0], point1[1], 0, mapObj[i].rotX, mapObj[i].rotY, mapObj[i].rotZ);
