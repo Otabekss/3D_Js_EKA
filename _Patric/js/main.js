@@ -3,6 +3,7 @@ var myContainer = document.getElementById("container");
 var myWorld = document.getElementById("world");
 
 var lock;
+var sensitivity = 0.5;
 
 var lvl_one_map = [
     { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 1, pattern: "url('assets/textures/grass.jpg')"},
@@ -115,22 +116,18 @@ myContainer.addEventListener("click", async () => {
 });
 
 function update() {
-    // dz = pressUp - pressDown;
-    // dx = pressLeft - pressRight;
-
     dx = (pressLeft - pressRight)*Math.cos(pawn.ry * DEG) + (pressUp - pressDown)*Math.sin(pawn.ry * DEG);
     dz = -(pressLeft - pressRight)*Math.sin(pawn.ry * DEG) + (pressUp - pressDown)*Math.cos(pawn.ry * DEG);
 
-    dry = mouseX;
-    drx = 0;
+    dry = mouseX * sensitivity;
+    drx = mouseY * sensitivity;
     mouseX = mouseY = 0;
 
     collision(lvl_one_map, pawn);
 
-    pawn.z += dz;
-    pawn.x += dx;
-
     if (lock) {
+        pawn.z += dz;
+        pawn.x += dx;
         pawn.ry += dry;
         pawn.rx -= drx;
     }
