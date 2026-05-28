@@ -15,7 +15,14 @@ var lvl_one_map = [
     { name: "wall001", height: 200, width: 200, posX: 0, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "black", opacity: 0.5}
 ];
 
-let lvl_one_obj = [{name: "coin", height: 50, width: 50, posX: 200, posY: 0, posZ: 300, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", dissappear: function(){ this.posX = 100000; this.posY = 100000; this.posZ = 100000}, }];
+let lvl_one_obj = [
+    {name: "coin", height: 50, width: 50, posX: 200, posY: 0, posZ: 300, rotX: 0, rotY: 0, rotZ: 0, color: "yellow"},
+    {name: "coin", height: 50, width: 50, posX: -200, posY: 0, posZ: -300, rotX: 0, rotY: 0, rotZ: 0, color: "red"},
+    {name: "coin", height: 50, width: 50, posX: -200, posY: 0, posZ: 300, rotX: 0, rotY: 0, rotZ: 0, color: "green"},
+    {name: "coin", height: 50, width: 50, posX: 200, posY: 0, posZ: -300, rotX: 0, rotY: 0, rotZ: 0, color: "magenta"},
+    {name: "coin", height: 50, width: 50, posX: 200, posY: 0, posZ: 600, rotX: 0, rotY: 0, rotZ: 0, color: "cyan"},
+
+];
 
 function createWorld(map) {
     for (let i = 0; i < map.length; i++) {  
@@ -47,7 +54,8 @@ function createWorld(map) {
 function createObjects(map) {
     for (let i = 0; i < map.length; i++) {  
         let mySquare = document.createElement("div");
-        mySquare.id = map[i].name;
+        mySquare.id = map[i].name + `${i}`;
+        map[i].name = map[i].name + `${i}`;
         mySquare.style.position = "absolute";
         mySquare.style.height = `${map[i].height}px`;
         mySquare.style.width = `${map[i].width}px`;
@@ -199,7 +207,7 @@ function interact(obj) {
       if (r < (obj[i].width) ** 2 + (obj[i].height) ** 2) {
           console.log("interaction");
           let myTmpObj = document.getElementById(obj[i].name);
-          lvl_one_obj.splice(i, 1);
+          lvl_one_obj.splice(i, 1); 
           myWorld.removeChild(myTmpObj);
         //   obj[i].posX = 10000;
         //   obj[i].posY = 10000;
