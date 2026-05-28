@@ -2,6 +2,13 @@ const DEG = Math.PI / 180;
 var myContainer = document.getElementById("container");
 var myWorld = document.getElementById("world");
 
+var myTextBlock = document.createElement('div');
+myTextBlock.id = 'myTextBlock';
+myContainer.appendChild(myTextBlock);
+var myText = document.createElement('h1');
+myText.textContent = 'Please collect all elements!';
+myTextBlock.appendChild(myText);
+
 var lock;
 var sensitivity = 0.5;
 
@@ -23,6 +30,9 @@ let lvl_one_obj = [
     {name: "coin", height: 50, width: 50, posX: 200, posY: 0, posZ: 600, rotX: 0, rotY: 0, rotZ: 0, color: "cyan"},
 
 ];
+
+var lvl_one_obj_Size = lvl_one_obj.length;
+var items_collected = 0;
 
 function createWorld(map) {
     for (let i = 0; i < map.length; i++) {  
@@ -207,8 +217,10 @@ function interact(obj) {
       if (r < (obj[i].width) ** 2 + (obj[i].height) ** 2) {
         //   console.log("interaction");
           let myTmpObj = document.getElementById(obj[i].name);
+          items_collected++;
           lvl_one_obj.splice(i, 1); 
           myWorld.removeChild(myTmpObj);
+          myText.textContent = `You have collected ${items_collected} of ${lvl_one_obj_Size}`;
         //   obj[i].posX = 10000;
         //   obj[i].posY = 10000;
         //   obj[i].posZ = 10000;
