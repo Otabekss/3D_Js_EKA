@@ -205,7 +205,7 @@ function interact(obj) {
   for (let i = 0; i < obj.length; i++) {
     let r = (pawn.x - obj[i].posX) ** 2 + (pawn.y - obj[i].posY) ** 2 + (pawn.z - obj[i].posZ) ** 2;
       if (r < (obj[i].width) ** 2 + (obj[i].height) ** 2) {
-          console.log("interaction");
+        //   console.log("interaction");
           let myTmpObj = document.getElementById(obj[i].name);
           lvl_one_obj.splice(i, 1); 
           myWorld.removeChild(myTmpObj);
