@@ -1,25 +1,150 @@
 const DEG = Math.PI / 180;
 var myContainer = document.getElementById("container");
+let crosshair = document.createElement("div");
+
+crosshair.style.position = "absolute";
+crosshair.style.left = "50%";
+crosshair.style.top = "50%";
+crosshair.style.width = "50px";
+crosshair.style.height = "50px";
+crosshair.style.backgroundImage = "url('assets/textures/hand.jpg')";
+crosshair.style.backgroundSize = "contain";
+crosshair.style.backgroundRepeat = "no-repeat";
+crosshair.style.backgroundPosition = "center";
+crosshair.innerHTML = "";
+crosshair.style.transform = "translate(-50%, -50%)";
+
+myContainer.appendChild(crosshair);
 var myWorld = document.getElementById("world");
 
+var myTextBlock = document.createElement('div');
+myTextBlock.id = 'myTextBlock';
+myContainer.appendChild(myTextBlock);
+var myTextBlock = document.createElement('div');
+myTextBlock.id = 'myTextBlock';
+
+var myText = document.createElement('h1');
+myText.innerHTML = `
+Health: <span id="health">100</span><br>
+Ammo: <span id="ammo">30</span><br>
+Score: <span id="score">0</span>
+`;
+
+myTextBlock.appendChild(myText);
+myContainer.appendChild(myTextBlock);
+
+
+
+var lock;
+var sensitivity = 0.5;
+let playerHealth = 100;
+let ammo = 30;
+let score = 0;
+
 var lvl_one_map = [
-    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 0.5},
-    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.5 },
-    { name: "right wall", height: 200, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 0.5 },
-    { name: "left wall", height: 200, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 0.5 },
-    // { name: "front wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#ecc0d1", opacity: 0.5 },
-    { name: "hinter wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", opacity: 0.5 },
-    { name: "wall001", height: 200, width: 200, posX: 0, posY: 0, posZ: 0, rotX: 0, rotY: 0, rotZ: 0, color: "black", opacity: 0.5}
+    { name: "floor", height: 2000, width: 2000, posX: 0, posY: 100, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "violet", opacity: 1, pattern: "url('assets/textures/grass.jpg')"},
+    { name: "ceiling", height: 2000, width: 2000, posX: 0, posY: -350, posZ: 0, rotX: 90, rotY: 0, rotZ: 0, color: "green", opacity: 0.5,pattern: "url('assets/textures/wall1.jpg')" },
+    { name: "right wall", height: 700, width: 2000, posX: 1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 1, pattern: "url('assets/textures/brickwall.jpg')" },
+    // { name: "front  wall", height: 200, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 90, rotZ: 0, color: "blue", opacity: 1, pattern: "url('assets/textures/wall.jpg')" },
+    { name: "left wall", height: 700, width: 2000, posX: -1000, posY: 0, posZ: 0, rotX: 0, rotY: 90, rotZ: 0, color: "orange", opacity: 1, pattern: "url('assets/textures/brickwall.jpg')" },
+    { name: "front wall", height: 700, width: 2000, posX: 0, posY: 0, posZ: 1000, rotX: 0, rotY: 0, rotZ: 0, color: "#ecc0d1", opacity: 0.5, pattern: "url('assets/textures/brickwall.jpg')"},
+    { name: "hinter wall", height: 700, width: 2000, posX: 0, posY: 0, posZ: -1000, rotX: 0, rotY: 0, rotZ: 0, color: "yellow", opacity: 1, pattern: "url('assets/textures/brickwall.jpg')" },
+    
 ];
+
+let lvl_one_obj = [
+{
+    name:"coin",
+    height:80,
+    width:80,
+    posX:200,
+    posY:10,
+    posZ:300,
+    pattern:"url('assets/textures/coin1.jpg')",
+    opacity:1,
+    rotX:0,
+    rotY:0,
+    rotZ:0
+},
+{
+    name:"coin",
+    height:80,
+    width:80,
+    posX:-200,
+    posY:10,
+    posZ:-300,
+    pattern:"url('assets/textures/coin1.jpg')",
+    opacity:1,
+    rotX:0,
+    rotY:0,
+    rotZ:0
+},
+{
+    name:"coin",
+    height:80,
+    width:80,
+    posX:-200,
+    posY:10,
+    posZ:300,
+    pattern:"url('assets/textures/coin1.jpg')",
+    opacity:1,
+    rotX:0,
+    rotY:0,
+    rotZ:0
+},
+{
+    name:"coin",
+    height:80,
+    width:80,
+    posX:200,
+    posY:10 ,
+    posZ:-300,
+    pattern:"url('assets/textures/coin1.jpg')",
+    opacity:1,
+    rotX:0,
+    rotY:0,
+    rotZ:0
+},
+{
+    name:"coin",
+    height:80,
+    width:80,
+    posX:200,
+    posY:10,
+    posZ:600,
+    pattern:"url('assets/textures/coin1.jpg')",
+    opacity:1,
+    rotX:0,
+    rotY:0,
+    rotZ:0
+}
+];
+
+var lvl_one_obj_Size = lvl_one_obj.length;
+var items_collected = 0;
 
 function createWorld(map) {
     for (let i = 0; i < map.length; i++) {  
-        var mySquare = document.createElement("div");
+        let mySquare = document.createElement("div");
         mySquare.id = map[i].name;
         mySquare.style.position = "absolute";
         mySquare.style.height = `${map[i].height}px`;
         mySquare.style.width = `${map[i].width}px`;
-        mySquare.style.backgroundColor = map[i].color;
+        if(map[i].name.includes("coin")){
+         mySquare.style.borderRadius = "50%";
+}
+    if (map[i].pattern) {
+        mySquare.style.backgroundImage = map[i].pattern;
+        mySquare.style.backgroundSize = "contain";
+        mySquare.style.backgroundRepeat = "no-repeat";
+        mySquare.style.backgroundPosition = "center";
+    } else {
+    mySquare.style.backgroundColor = map[i].color;
+}
+mySquare.style.width = `${map[i].width}px`;
+if(map[i].name.includes("coin")){
+    mySquare.style.borderRadius = "50%";
+}
         mySquare.style.opacity = map[i].opacity;
         mySquare.style.transform = `
             translate3d(
@@ -34,13 +159,197 @@ function createWorld(map) {
         myWorld.appendChild(mySquare);
     }
 }
+let enemies = [
+{
+    name:"enemy",
+    health:3,
+    height:100,
+    width:100,
+    posX:500,
+    posY:0,
+    posZ:500,
+    rotX:0,
+    rotY:0,
+    rotZ:0,
+    color:"red",
+    opacity:1
+},
+{
+    name:"enemy",
+    health:3,
+    height:100,
+    width:100,
+    posX:-500,
+    posY:0,
+    posZ:700,
+    rotX:0,
+    rotY:0,
+    rotZ:0,
+    color:"darkred",
+    opacity:1
+}
+];
+createObjects(lvl_one_obj);
+createObjects(enemies);
+document.addEventListener("mousedown", shoot);
 
-createWorld(lvl_one_map);   
+function shoot() {
+    if (ammo <= 0) return;
 
-let dx = dy = dz = dry = 0;
-let pressUp = pressDown = pressLeft = pressRight = 0;
+    ammo--;
+    document.getElementById("ammo").textContent = ammo;
+
+    const range = 300;
+    const fov = 0.15;
+
+    let fx = Math.sin(pawn.ry * DEG);
+    let fz = Math.cos(pawn.ry * DEG);
+
+    for (let i = enemies.length - 1; i >= 0; i--) {
+
+        let dx = enemies[i].posX - pawn.x;
+        let dz = enemies[i].posZ - pawn.z;
+
+        let dist = Math.sqrt(dx * dx + dz * dz);
+        if (dist > range) continue;
+
+        dx /= dist;
+        dz /= dist;
+
+        let dot = dx * fx + dz * fz;
+
+       if (dot > 0.85) {
+
+            enemies[i].health--;
+
+            if (enemies[i].health <= 0) {
+
+                let obj = document.getElementById(enemies[i].name + i);
+                if (obj) myWorld.removeChild(obj);
+
+                enemies.splice(i, 1);
+
+                score++;
+                document.getElementById("score").textContent = score;
+            }
+        }
+    }
+}
+function moveEnemies(){
+
+    for(let i=0;i<enemies.length;i++){
+
+        let dx = pawn.x - enemies[i].posX;
+        let dz = pawn.z - enemies[i].posZ;
+
+        let len = Math.sqrt(dx*dx + dz*dz);
+
+        if(len > 10){
+
+            const speed = 2;
+
+            enemies[i].posX += (dx / len) * speed;
+            enemies[i].posZ += (dz / len) * speed;
+
+        }
+
+        let enemy = document.getElementById(enemies[i].name + i);
+
+        if(enemy){
+            enemy.style.transform = `
+            translate3d(
+                ${enemies[i].posX + myWorld.clientWidth/2}px,
+                ${enemies[i].posY + myWorld.clientHeight/2}px,
+                ${-enemies[i].posZ}px
+            )`;
+        }
+
+        if(len < 100){
+            playerHealth -= 0.1;
+
+            document.getElementById("health").textContent =
+                Math.floor(playerHealth);
+
+            if(playerHealth <= 0){
+                clearInterval(game);
+                alert("GAME OVER");
+            }
+        }
+    }
+}
+function createObjects(map) {
+
+    for (let i = 0; i < map.length; i++) {
+
+        let mySquare = document.createElement("div");
+
+        mySquare.id = map[i].name + i;
+
+        mySquare.style.position = "absolute";
+        mySquare.style.height = `${map[i].height}px`;
+        mySquare.style.width = `${map[i].width}px`;
+
+        if (map[i].pattern) {
+
+            mySquare.style.backgroundImage = map[i].pattern;
+            mySquare.style.backgroundSize = "100% 100%";
+            mySquare.style.backgroundRepeat = "no-repeat";
+            mySquare.style.backgroundPosition = "center";
+
+        } else {
+
+            mySquare.style.backgroundColor = map[i].color;
+        }
+
+        if (map[i].name === "coin") {
+            mySquare.style.borderRadius = "50%";
+        }
+        if (map[i].name === "enemy") {
+
+    mySquare.style.backgroundImage = "url('assets/textures/enemy.png')";
+    mySquare.style.backgroundSize = "contain";
+    mySquare.style.backgroundRepeat = "no-repeat";
+    mySquare.style.backgroundPosition = "center";
+
+} else if (map[i].pattern) {
+
+    mySquare.style.backgroundImage = map[i].pattern;
+    mySquare.style.backgroundSize = "100% 100%";
+    mySquare.style.backgroundRepeat = "no-repeat";
+    mySquare.style.backgroundPosition = "center";
+} else {
+    mySquare.style.backgroundColor = map[i].color;
+}
+        mySquare.style.opacity = map[i].opacity;
+
+        mySquare.style.transform = `
+        translate3d(
+            ${map[i].posX + myWorld.clientWidth / 2 - map[i].width / 2}px,
+            ${map[i].posY + myWorld.clientHeight / 2 - map[i].height / 2}px,
+            ${-map[i].posZ}px
+        )
+        rotateX(${map[i].rotX}deg)
+        rotateY(${map[i].rotY}deg)
+        rotateZ(${map[i].rotZ}deg)
+        `;
+
+        myWorld.appendChild(mySquare);
+    }
+}
+
+createWorld(lvl_one_map);
+  
+
+let dx = 0;
+let dy = 0;
+let dz = 0;
+let dry = 0;
+let drx = 0;
+let pressUp = pressDown = pressLeft = pressRight = jump = 0;
 let mouseX = mouseY = 0;
 let vel = 10;
+var gravity = 1;
+var onGround = false;
 
 function player(x, y, z, rx, ry, rz, vx, vy, vz) {
     this.x = x;
@@ -69,6 +378,9 @@ document.addEventListener("keydown", (e) => {
     if (e.code == "KeyA") {
         pressRight = pawn.vx;
     }
+    if (e.code == "Space") {
+        jump = pawn.vy;
+    }
 });
 
 document.addEventListener("keyup", (e) => {
@@ -84,6 +396,9 @@ document.addEventListener("keyup", (e) => {
     if (e.code == "KeyA") {
         pressRight = 0;
     }
+    if (e.code == "Space") {
+        jump = 0;
+    }
 });
 
 document.addEventListener("mousemove", (e) => {
@@ -91,10 +406,17 @@ document.addEventListener("mousemove", (e) => {
     mouseY = e.movementY;
 });
 
+document.addEventListener("pointerlockchange", (event) => {
+    lock = !lock;
+});
+
 myContainer.addEventListener("click", async () => {
-  await myContainer.requestPointerLock({
-    unadjustedMovement: true,
-  });
+    if (!lock) {
+        await myContainer.requestPointerLock({
+            unadjustedMovement: true,
+        });
+    } 
+        
 //   myContainer.style.width = "1920px";
 //   myContainer.style.height = "1200px";
 //   myContainer.requestFullscreen();
@@ -102,27 +424,93 @@ myContainer.addEventListener("click", async () => {
 });
 
 function update() {
-    // dz = pressUp - pressDown;
-    // dx = pressLeft - pressRight;
-
     dx = (pressLeft - pressRight)*Math.cos(pawn.ry * DEG) + (pressUp - pressDown)*Math.sin(pawn.ry * DEG);
     dz = -(pressLeft - pressRight)*Math.sin(pawn.ry * DEG) + (pressUp - pressDown)*Math.cos(pawn.ry * DEG);
 
-    dry = mouseX;
-    drx = 0;
+    dry = mouseX * sensitivity;
+    drx = mouseY * sensitivity;
     mouseX = mouseY = 0;
+
+    if (onGround) {
+        dy = 0;
+        if (jump) {
+            pawn.y = -jump;
+            onGround = false;
+        }
+    } else {
+        dy = gravity;
+    }
 
     collision(lvl_one_map, pawn);
 
-    pawn.z += dz;
-    pawn.x += dx;
-    pawn.ry += dry;
-    pawn.rx -= drx;
+    if (lock) {
+        pawn.z += dz;
+        pawn.x += dx;
+        pawn.y += dy;
+        pawn.ry += dry;
+        pawn.rx -= drx;
+        if (pawn.rx > 57) {
+            pawn.rx = 57;
+        } else if (pawn.rx < -57) {
+            pawn.rx = -57;
+        }
+    }
+    moveEnemies();
+    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${-pawn.y}px, ${pawn.z}px) `;
+for(let i=0;i<lvl_one_obj.length;i++){
 
-    myWorld.style.transform = `translateZ(600px) RotateX(${pawn.rx}deg) RotateY(${pawn.ry}deg) translate3d(${-pawn.x}px, ${pawn.y}px, ${pawn.z}px) `;
+    lvl_one_obj[i].rotY += 3;
+     let coin = document.getElementById("coin" + i);
+
+    if(coin){
+
+        coin.style.transform = `
+        translate3d(
+        ${lvl_one_obj[i].posX + myWorld.clientWidth/2 - lvl_one_obj[i].width/2}px,
+        ${lvl_one_obj[i].posY + myWorld.clientHeight/2 - lvl_one_obj[i].height/2}px,
+        ${-lvl_one_obj[i].posZ}px
+        )
+        rotateY(${lvl_one_obj[i].rotY}deg)
+        `;
+    }
+}
+    interact(lvl_one_obj);
+    
 }
 
 var game = setInterval(update, 10);
+function interact(obj) {
+
+    for (let i = obj.length - 1; i >= 0; i--) {
+
+        let dx = pawn.x - obj[i].posX;
+        let dz = pawn.z - obj[i].posZ;
+
+        let dist = Math.sqrt(dx * dx + dz * dz);
+
+        // make collection easier
+        if (dist < 140) {
+
+            let coin = document.getElementById("coin" + i);
+
+            if (coin) {
+                coin.remove();
+            }
+
+            obj.splice(i, 1);
+
+            items_collected++;
+            score += 10;
+
+            document.getElementById("score").textContent = score;
+
+            if (items_collected >= lvl_one_obj_Size) {
+                clearInterval(game);
+                alert("YOU WIN!");
+            }
+        }
+    }
+}
 
 function collision(mapObj, leadObj) {
     onGround = false;

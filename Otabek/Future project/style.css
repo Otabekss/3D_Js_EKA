@@ -1,0 +1,89 @@
+*{
+    margin: 0;
+    box-sizing: border-box;
+    padding:0 ;
+}
+.navbar{
+    background-color: crimson;
+    list-style: none;
+    
+
+}
+.laga a{
+    list-style: none;
+    text-decoration: none;
+    color: white;
+    font-weight: 200px;
+    font-size: 40px;
+  
+   
+}
+.dlink {
+   display: flex;
+   justify-content: space-between;
+  
+}
+ul li{
+    display: inline-block;
+    color: white;
+  
+   
+}
+li a{
+     text-decoration: none;
+    list-style: none;
+   margin-right: 10px;
+   color: white;
+   font-style: italic;
+   font-size: 30px;
+}
+.info{
+    margin: 0;
+    padding: 5px;
+    background-color: lightgrey;
+}
+.info h1{
+    margin: 10px;
+    padding: 10px;
+}
+.brow {
+    margin: 10px;
+    padding: 10px;
+    background-color: white;
+}
+.registr{
+    margin: 10px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    background-color: lightblue;
+  
+}
+.but{
+    font-size: 20px;
+    margin-top: 6px;
+}
+.but a{
+    list-style: none;
+    text-decoration: none;
+    background-color: lightgreen;
+    color: black;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.impg{
+    cursor: pointer;
+}
+.buo{
+    background-color: lightgreen;
+    text-decoration: none;
+    list-style: none;
+    border-radius: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.buo a{
+    text-decoration: none;
+    list-style: none;
+    font-weight: 30px;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
